@@ -1,0 +1,98 @@
+name: Docker Build and Push
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - "feature/*"
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. GitHub 저장소 체크아웃
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Docker Hub 로그인
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # 3. 최신 태그 가져오고 브랜치별로 증가값 결정
+      - name: Determine New Tag
+        id: new_tag
+        run: |
+          # repository 이름 가져오기
+          REPOSITORY_NAME=$(basename "${{ github.repository }}")
+          echo "Docker Repository Name: $REPOSITORY_NAME"
+
+          # Docker Hub API로 최신 태그 가져오기
+          LATEST_TAG=$(curl -s -X GET \
+            "https://hub.docker.com/v2/namespaces/${{ secrets.DOCKER_USERNAME }}/repositories/$REPOSITORY_NAME/tags/?page_size=2" | jq -r '.results[1].name')
+
+          echo "Latest tag from Docker Hub: $LATEST_TAG"
+
+          # 기본값 설정 (최초 실행)
+          if [[ -z "$LATEST_TAG" || ! "$LATEST_TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            LATEST_TAG="0.0.0"
+            echo "Latest tag is not found. Set to $LATEST_TAG"
+          fi
+
+          # 태그를 MAJOR.MINOR.PATCH로 분리
+          IFS='.' read -r major minor patch <<< "$LATEST_TAG"
+
+          # 브랜치별 버전 증가
+          if [[ "${{ github.ref_name }}" == "main" ]]; then
+            major=$((major + 1))
+            minor=0
+            patch=0
+          elif [[ "${{ github.ref_name }}" == "dev" ]]; then
+            minor=$((minor + 1))
+            patch=0
+          elif [[ "${{ github.ref_name }}" == feature/* ]]; then
+            patch=$((patch + 1))
+          fi
+
+          # 새로운 태그 생성
+          NEW_TAG="$major.$minor.$patch"
+          echo "New Tag: $NEW_TAG"
+          echo "tag=$NEW_TAG" >> $GITHUB_ENV
+          echo "repository=$REPOSITORY_NAME" >> $GITHUB_ENV
+
+      # 4. Docker Buildx 설정
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          # Sets up docker build command as an alias to docker buildx build
+          install: true
+
+      # 5. Docker buildx builder 생성
+      - name: Create Docker Buildx Builder
+        run: docker buildx create --name mybuilder --use
+
+      # 6. Docker 이미지 빌드
+      - name: Build Docker Image
+        run: |
+          echo "Building Docker Image..."
+          docker buildx build \
+          --platform linux/amd64,linux/arm64 \
+          --push \
+          -t ${{ secrets.DOCKER_USERNAME }}/${{ env.repository }}:${{ env.tag }} \
+          -f .dockerfile .
+
+          echo "Docker Image Pull..."
+          docker pull ${{ secrets.DOCKER_USERNAME }}/${{ env.repository }}:${{ env.tag }}
+
+          echo "Docker Image Tag..."
+          docker tag ${{ secrets.DOCKER_USERNAME }}/${{ env.repository }}:${{ env.tag }} ${{ secrets.DOCKER_USERNAME }}/${{ env.repository }}:latest
+
+      # 7. Docker 이미지 푸시
+      - name: Push Docker Image
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/${{ env.repository }}:${{ env.tag }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/${{ env.repository }}:latest
