@@ -4,3 +4,14 @@ server:
 spring:
   application:
     name: jwks-dev
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,liveness,readiness # "*"
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
