@@ -6,10 +6,12 @@ spring:
     name: jwks-dev
 
 management:
+  server:
+    port: 15020
   endpoints:
     web:
       exposure:
-        include: health,liveness,readiness # "*"
+        include: health # "*"
   endpoint:
     health:
       show-details: always
