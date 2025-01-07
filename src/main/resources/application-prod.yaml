@@ -7,7 +7,7 @@ spring:
 
 management:
   server:
-    port: 15020
+    port: 15022
   endpoints:
     web:
       exposure:
