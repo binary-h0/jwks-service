@@ -4,9 +4,13 @@ public interface JwksService {
 
     String getJWKS();
 
-    String getJWKSRsaPublicKeys();
+    String getRS512PublicJWKS();
 
-    String getJWKSRsaPrivateKeys();
+    String getRS512PrivateJWKS();
+
+    String getRS256PublicJWKS();
+
+    String getRS256PrivateJWKS();
 
     String getError();
 }

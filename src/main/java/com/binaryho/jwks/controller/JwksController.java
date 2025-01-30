@@ -26,19 +26,34 @@ public class JwksController {
         return ResponseEntity.ok().body(Result.success(jwksService.getJWKS()));
     }
 
-    @GetMapping("/rsa/public")
-    public ResponseEntity<Result<?>> getJWKSRsaPublicKeys() {
-        return ResponseEntity.ok().body(Result.success(jwksService.getJWKSRsaPublicKeys()));
+    @GetMapping("/rs512/public")
+    public ResponseEntity<Result<?>> getJWKSRsa512PublicKeys() {
+        return ResponseEntity.ok().body(Result.success(jwksService.getRS512PublicJWKS()));
     }
 
-    @GetMapping("/rsa/public.json")
-    public ResponseEntity<String> getJWKSRsaPublicKeysJSON() {
-        return ResponseEntity.ok().body(jwksService.getJWKSRsaPublicKeys());
+    @GetMapping("/rs512/public.json")
+    public ResponseEntity<String> getJWKSRsa512PublicKeysJSON() {
+        return ResponseEntity.ok().body(jwksService.getRS512PublicJWKS());
     }
 
-    @GetMapping("/rsa/private")
-    public ResponseEntity<Result<?>> getJWKSRsaPrivateKeys() {
-        return ResponseEntity.ok().body(Result.success(jwksService.getJWKSRsaPrivateKeys()));
+    @GetMapping("/rs512/private")
+    public ResponseEntity<Result<?>> getJWKSRsa512PrivateKeys() {
+        return ResponseEntity.ok().body(Result.success(jwksService.getRS512PrivateJWKS()));
+    }
+
+    @GetMapping("/rs256/public")
+    public ResponseEntity<Result<?>> getJWKSrs256PublicKeys() {
+        return ResponseEntity.ok().body(Result.success(jwksService.getRS256PublicJWKS()));
+    }
+
+    @GetMapping("/rs256/public.json")
+    public ResponseEntity<String> getJWKSrs256PublicKeysJSON() {
+        return ResponseEntity.ok().body(jwksService.getRS256PublicJWKS());
+    }
+
+    @GetMapping("/rs256/private")
+    public ResponseEntity<Result<?>> getJWKSrs256PrivateKeys() {
+        return ResponseEntity.ok().body(Result.success(jwksService.getRS256PrivateJWKS()));
     }
 
     @GetMapping("/error")
