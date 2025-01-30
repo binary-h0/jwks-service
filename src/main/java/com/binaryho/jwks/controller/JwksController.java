@@ -31,6 +31,11 @@ public class JwksController {
         return ResponseEntity.ok().body(Result.success(jwksService.getJWKSRsaPublicKeys()));
     }
 
+    @GetMapping("/rsa/public.json")
+    public ResponseEntity<String> getJWKSRsaPublicKeysJSON() {
+        return ResponseEntity.ok().body(jwksService.getJWKSRsaPublicKeys());
+    }
+
     @GetMapping("/rsa/private")
     public ResponseEntity<Result<?>> getJWKSRsaPrivateKeys() {
         return ResponseEntity.ok().body(Result.success(jwksService.getJWKSRsaPrivateKeys()));
