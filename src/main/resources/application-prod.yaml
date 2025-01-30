@@ -4,3 +4,16 @@ server:
 spring:
   application:
     name: jwks-prod
+
+management:
+  server:
+    port: 15022
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
