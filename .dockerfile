@@ -20,7 +20,8 @@ RUN ./gradlew bootJar --no-daemon
 
 # Stage 2: Create the runtime image
 # FROM amazoncorretto:17 AS runtime
-FROM openjdk:17-jdk-slim AS runtime
+# FROM openjdk:17-jdk-slim AS runtime
+FROM eclipse-temurin:17-jdk-jammy AS runtime
 
 # Set the working directory inside the container
 WORKDIR /app
